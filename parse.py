@@ -267,7 +267,6 @@ def get_upcoming_matches():  # updated
                 matchObj['team2'] = None
 
             matches_list.append(matchObj)
-
     return matches_list
 
 
@@ -292,9 +291,9 @@ def get_live_matches():  # new fun
 
             if (getMatch.find_all("div", {"class": "matchTeams"})):
                 matchObj['team1'] = getMatch.find_all("div", {"class": "matchTeam"})[0].text.encode(
-                    'utf8').lstrip().rstrip()
+                    'utf8').lstrip().rstrip().replace(b'\n ()', b'')
                 matchObj['team2'] = getMatch.find_all("div", {"class": "matchTeam"})[1].text.encode(
-                    'utf8').lstrip().rstrip()
+                    'utf8').lstrip().rstrip().replace(b'\n ()', b'')
             else:
                 matchObj['team1'] = None
                 matchObj['team2'] = None
@@ -351,23 +350,25 @@ if __name__ == "__main__":
     import pprint
     pp = pprint.PrettyPrinter()
 
-    pp.pprint('top5')
-    pp.pprint(top5teams())
+    # pp.pprint('top5')
+    # pp.pprint(top5teams())
+    #
+    # pp.pprint('top30')
+    # pp.pprint(top30teams())
+    #
+    # pp.pprint('top_players')
+    # pp.pprint(top_players())
+    #
+    # pp.pprint('get_players')
+    # pp.pprint(get_players('6665'))
+    #
+    # pp.pprint('get_team_info')
+    # pp.pprint(get_team_info('6665'))
 
-    pp.pprint('top30')
-    pp.pprint(top30teams())
+    # pp.pprint('get_upcoming_matches')
+    # pp.pprint(get_upcoming_matches())
 
-    pp.pprint('top_players')
-    pp.pprint(top_players())
+    # pp.pprint(get_live_matches())
 
-    pp.pprint('get_players')
-    pp.pprint(get_players('6665'))
-
-    pp.pprint('get_team_info')
-    pp.pprint(get_team_info('6665'))
-
-    pp.pprint('get_matches')
-    # pp.pprint(get_matches())
-
-    pp.pprint('get_results')
-    pp.pprint(get_results())
+    # pp.pprint('get_results')
+    # pp.pprint(get_results())
