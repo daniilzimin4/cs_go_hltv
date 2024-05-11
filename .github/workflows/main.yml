@@ -47,7 +47,7 @@ jobs:
         context: .
         file: ./Dockerfile
         push: true
-        tags: your-docker-username/your-docker-repo:latest
+        tags: DaniilZimin/cs_go_hltv_bot:latest
 
     - name: SSH Deploy
       uses: appleboy/ssh-action@master
