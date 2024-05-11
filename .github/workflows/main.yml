@@ -47,7 +47,7 @@ jobs:
         context: .
         file: ./Dockerfile
         push: true
-        tags: DaniilZimin/cs_go_hltv_bot:latest
+        tags: daniilzimin4/cs_go_hltv_bot:latest
 
     - name: SSH Deploy
       uses: appleboy/ssh-action@master
@@ -56,8 +56,8 @@ jobs:
         username: ${{ secrets.SERVER_USERNAME }}
         password: ${{ secrets.SERVER_PASSWORD }}
         script: |
-          docker pull DaniilZimin/cs_go_hltv_bot:latest
+          docker pull daniilzimin4/cs_go_hltv_bot:latest
           docker run -d -p 8443:8443 \
               -e TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }} \
               -v /root/data.db:data.db \
-              DaniilZimin/cs_go_hltv_bot:latest
+              daniilzimin4/cs_go_hltv_bot:latest
