@@ -56,6 +56,18 @@ jobs:
         username: ${{ secrets.SERVER_USERNAME }}
         password: ${{ secrets.SERVER_PASSWORD }}
         script: |
+          # Получите идентификатор контейнера, запущенного в предыдущем деплое
+          PREVIOUS_CONTAINER_ID=$(docker ps -q -f ancestor=daniilzimin4/cs_go_hltv_bot:latest)
+
+          # Проверьте, что переменная PREVIOUS_CONTAINER_ID не пуста
+          if [ -n "$PREVIOUS_CONTAINER_ID" ]; then
+            # Остановите контейнер
+            docker stop $PREVIOUS_CONTAINER_ID
+          else
+            echo "No previous container found."
+          fi
+
+          # Затем запустите новый контейнер
           docker pull daniilzimin4/cs_go_hltv_bot:latest
           docker run -d -p 8443:8443 \
               -e TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }} \
