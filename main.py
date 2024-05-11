@@ -228,7 +228,7 @@ def gen_top_teams(chat_id, teams):
 
 create_tables()
 
-# Запускаем бота в отдельном потоке
+#Запускаем бота в отдельном потоке
 polling_thread = threading.Thread(target=polling_thread)
 polling_thread.start()
 
