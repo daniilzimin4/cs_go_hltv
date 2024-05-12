@@ -1,6 +1,5 @@
 import sqlite3
 
-# Путь к файлу базы данных SQLite3
 from config import DATABASE_PATH
 from parse import *
 
