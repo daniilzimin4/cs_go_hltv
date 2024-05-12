@@ -1,65 +1,24 @@
 START_MAIN_MENU = """
-Привет! Я бот киберспортивных матчей по CS2. Используй /help для получения списка команд.
+Hi! I am a CS2 esports match bot.
 """
 
 MAIN_MENU = """
-Ты в главном меню
+You're in the main menu
 """
 
 ERROR_MESSAGE = """
-Что-то пошло не так, но админы уже решают эту проблему. Наверное...
+Something went wrong, but the admins are already solving this problem. Probably...
 """
 
 NOT_ALLOWED = """
-Вам не разрешено пользоваться функционалом бота
+You are not allowed to use the bot's functionality
 """
 
 SELECT_MATCHES = """
-Выбери, какие матчи тебе интересны
+Choose which matches you are interested in
 """
 
 SELECT_EVENTS = """
-Выбери, какие турниры ты хочешь посмотреть
+Choose which tournaments you want to watch
 """
 
-TEXT_SAVED = """
-Текст сохранён. Нажми на кнопку, чтобы отправить в канал
-"""
-
-YOU_DONT_ENTER_A_TEXT = """
-Ты не ввел текст. Попробуй снова
-"""
-
-MESSAGE_SENT = """
-Сообщение отправлено!
-"""
-
-PHOTO_IF_A_TEXT = """
-Будет ли какая-то подпись к фотографии?
-"""
-
-NO_CAPTION = """
-Ну нет так нет...
-
-Отправь фото, после чего оно сразу же перешлется в канал
-"""
-
-YES_CAPTION = """
-Хорошо. Какой текст добавить к подписи?
-"""
-
-CAPTION_SAVED = """
-Сохранено. Нажми на кнопку, чтобы выбрать фото для отправки
-"""
-
-SEND_PHOTO_TO_CHANNEL = """
-Отправь фото, после чего оно сразу же перешлется в канал
-"""
-
-YOUR_PHOTO_HAVE_SENT = """
-Фото было отправлено
-"""
-
-ADMIN_INFO = """
-Отправил @{username}
-"""
