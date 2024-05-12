@@ -38,7 +38,7 @@ def send_match_notifications():
 		count = cursor.fetchone()[0]
 		cursor.execute("SELECT chat_id FROM users_teams WHERE team_name = ? OR team_name = ?", (match[0], match[1]))
 		users = cursor.fetchall()
-		if td < datetime.timedelta(hours=3) and count == 0 and users:
+		if td < datetime.timedelta(hours=4) and count == 0 and users:
 			for user in set(users):
 				bot.send_message(user[0], f"Do not skip\n{match[0]} vs {match[1]}\n" +\
 				                 f"Date: {match[3]}, Time: {match[2]}\nEvent: {match[4]}")
