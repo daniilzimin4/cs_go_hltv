@@ -24,7 +24,7 @@ def create_tables():
                    date DATE,
                    event TEXT)''')
 
-    # Таблица предстоящих матчей
+    # Таблица live матчей
     cursor.execute('''CREATE TABLE IF NOT EXISTS live_matches
                       (id INTEGER PRIMARY KEY AUTOINCREMENT, 
                        teamA TEXT, 
@@ -53,6 +53,14 @@ def create_tables():
     cursor.execute('''CREATE TABLE IF NOT EXISTS users
                   (chat_id INTEGER PRIMARY KEY, 
                    status TEXT)''')
+
+    # Таблица матчей о которых отправлены уведомления
+    cursor.execute('''CREATE TABLE IF NOT EXISTS notifications
+                  (teamA TEXT, 
+                   teamB TEXT, 
+                   match_time TEXT,
+                   date DATE,
+                   event TEXT)''')
 
     conn.commit()
     conn.close()
