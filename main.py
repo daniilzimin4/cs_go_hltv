@@ -1,4 +1,5 @@
 import time
+import datetime
 
 import telebot
 import logging
@@ -28,7 +29,22 @@ def polling_thread():
 
 # Функция для отправки уведомлений о предстоящих матчах
 def send_match_notifications():
-	pass
+	conn = sqlite3.connect(DATABASE_PATH)
+	cursor = conn.cursor()
+	for match in get_upcoming_matches_from_db():
+		td = datetime.datetime(*([int(x) for x in match[3].split('-') + match[2].split(':')])) - datetime.datetime.now()
+		cursor.execute("SELECT count(*) FROM notifications WHERE" +
+		               " teamA=? AND teamB=? AND match_time=? AND date=? AND event=?", match)
+		count = cursor.fetchone()[0]
+		cursor.execute("SELECT chat_id FROM users_teams WHERE team_name = ? OR team_name = ?", (match[0], match[1]))
+		users = cursor.fetchall()
+		if td < datetime.timedelta(hours=1) and count == 0 and users:
+			for user in set(users):
+				bot.send_message(user[0], f"Do not skip\n{match[0]} vs {match[1]}\n" +\
+				                 f"Date: {match[3]}, Time: {match[2]}\nEvent: {match[4]}")
+			cursor.execute("INSERT INTO notifications VALUES (?, ?, ?, ?, ?)", match)
+	conn.commit()
+	conn.close()
 
 
 @bot.message_handler(commands=['start'])
@@ -53,45 +69,42 @@ def all_messages(msg):
 	try:
 		user_status = get_user_status(chat_id)
 
-		if message == "⬅️ В главное меню":
+		if message == "⬅️ Main menu":
 			reset_user(chat_id)
 			bot.send_message(chat_id, MAIN_MENU, reply_markup=main_keyboard())
-		elif message == "Отслеживаемые команды":
+		elif message == "Monitored teams":
 			teams = db_teams_get()  # Получаем список команд из базы данных
 			set_user_status(chat_id, "page_0")
 			markup = gen_markup_teams(chat_id, teams)
-			bot.send_message(chat_id, "Выберите команды:", reply_markup=markup)
-		elif message == "Матчи":
+			bot.send_message(chat_id, "Choose teams:", reply_markup=markup)
+		elif message == "Matches":
 			set_user_status(chat_id, "matches")
 			bot.send_message(chat_id, SELECT_MATCHES, reply_markup=send_matches_keyboard())
-		# elif message == "Турниры":
-		# 	set_user_status(chat_id, "events")
-		# 	bot.send_message(chat_id, SELECT_EVENTS, reply_markup=send_events_keyboard())
-		elif message == "Топ команд":
+		elif message == "Ranking":
 			teams = db_teams_get()  # Получаем список команд из базы данных
 			set_user_status(chat_id, "page_0")
 			top = gen_top_teams(chat_id, teams)
-			bot.send_message(chat_id, "Топ команд:", reply_markup=top)
-		elif message == "Live матчи":
+			bot.send_message(chat_id, "Ranking:", reply_markup=top)
+		elif message == "Live matches":
 			now_matches = get_live_matches_from_db()
 			formatted_live_matches_text = format_live_matches(now_matches)
 			if formatted_live_matches_text == '':
-				formatted_live_matches_text = 'Нет запланированных матчей'
+				formatted_live_matches_text = 'No live matches'
 			bot.send_message(chat_id, formatted_live_matches_text, reply_markup=send_matches_keyboard())
-		elif message == "Список интересующих матчей":
+		elif message == "Matches of monitored teams":
 			upcoming_matches = get_upcoming_matches_from_db()
 			interesting_teams = get_user_selected_teams(chat_id)
 			upcoming_matches = [match for match in upcoming_matches if
 			                    match[0] in interesting_teams or match[1] in interesting_teams]
 			formatted_matches_text = format_matches(upcoming_matches)
 			if formatted_matches_text == '':
-				formatted_matches_text = 'Нет запланированных матчей'
+				formatted_matches_text = 'No upcoming matches'
 			bot.send_message(chat_id, formatted_matches_text, reply_markup=send_matches_keyboard())
-		elif message == "Список всех будущих матчей":
+		elif message == "All upcoming matches":
 			upcoming_matches = get_upcoming_matches_from_db()
 			formatted_matches_text = format_matches(upcoming_matches)
 			if formatted_matches_text == '':
-				formatted_matches_text = 'Нет запланированных матчей'
+				formatted_matches_text = 'No upcoming matches'
 			bot.send_message(chat_id, formatted_matches_text, reply_markup=send_matches_keyboard())
 
 	except Exception as Error:
@@ -106,12 +119,12 @@ def callback_query(call):
 	type_of_call = 1
 	if call.data == "end 1":
 		reset_user(chat_id)
-		bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text="Выбор записан.")
+		bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text="Choice saved.")
 		return
 	elif call.data == "end 2":
 		reset_user(chat_id)
 		bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-		                      text="Введите команду.")
+		                      text="Top closed.")
 		return
 	elif call.data.split()[0] == "next_page":
 		page = int(get_user_status(chat_id).split('_')[1])
@@ -122,21 +135,19 @@ def callback_query(call):
 		set_user_status(chat_id, f'page_{page - 1}')
 		type_of_call = int(call.data.split()[1])
 	elif call.data.split()[0] == "info":
-		page = int(get_user_status(chat_id).split('_')[1])
-		set_user_status(chat_id, f'page_{page}')
 		team_rank = int(call.data.split()[1])
 		info = top30teams()[team_rank]
 		players = "\n\t\t"
 		for player in get_players(info['team-id']):
 			players += player['name'] + f" (id:{player['id']})\n\t\t"
 
-		info_to_show = f"Название: {info['name']}" + \
-		               f"\n\t\tМесто в топе: {info['rank']}" + \
-		               f"\n\t\tID команды: {info['team-id']}" + \
-		               f"\n\t\tКоличество очков: {info['rank-points']}" + \
-		               f"\nСостав: {players}"
+		info_to_show = f"Name: {info['name']}" + \
+		               f"\n\t\tRank: {info['rank']}" + \
+		               f"\n\t\tTeam id: {info['team-id']}" + \
+		               f"\n\t\tRank points: {info['rank-points']}" + \
+		               f"\nPlayers: {players}"
 		return_button = telebot.types.InlineKeyboardMarkup()
-		return_button.add(telebot.types.InlineKeyboardButton("Назад", callback_data="prev_page_top"))
+		return_button.add(telebot.types.InlineKeyboardButton("Back", callback_data="prev_page_top"))
 
 		bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
 		                      text=info_to_show, reply_markup=return_button)
@@ -144,7 +155,7 @@ def callback_query(call):
 	elif call.data.split()[0] == "prev_page_top":
 		page = int(get_user_status(chat_id).split('_')[1])
 		set_user_status(chat_id, f'page_{page}')
-		bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text="Топ команд:")
+		bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text="Ranking:")
 		type_of_call = 2
 	else:
 		team_name = call.data.split("_")[1]
@@ -195,7 +206,7 @@ def gen_markup_teams(chat_id, teams):
 		markup.add(telebot.types.InlineKeyboardButton("Prev", callback_data="prev_page 1"))
 	elif end_index < len(teams):
 		markup.add(telebot.types.InlineKeyboardButton("Next", callback_data="next_page 1"))
-	markup.add(telebot.types.InlineKeyboardButton("Закончить выбор", callback_data="end 1"))
+	markup.add(telebot.types.InlineKeyboardButton("Close", callback_data="end 1"))
 	return markup
 
 
@@ -222,13 +233,13 @@ def gen_top_teams(chat_id, teams):
 		markup.add(telebot.types.InlineKeyboardButton("Prev", callback_data="prev_page 2"))
 	elif end_index < len(teams):
 		markup.add(telebot.types.InlineKeyboardButton("Next", callback_data="next_page 2"))
-	markup.add(telebot.types.InlineKeyboardButton("Закрыть топ", callback_data="end 2"))
+	markup.add(telebot.types.InlineKeyboardButton("Close", callback_data="end 2"))
 	return markup
 
 
 create_tables()
 
-#Запускаем бота в отдельном потоке
+# Запускаем бота в отдельном потоке
 polling_thread = threading.Thread(target=polling_thread)
 polling_thread.start()
 
