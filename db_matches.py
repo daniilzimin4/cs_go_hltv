@@ -67,9 +67,9 @@ def get_live_matches_from_db():
 def format_matches(matches):
     formatted_matches = ""
     for match in matches:
+        formatted_matches += f"{match[0]} vs {match[1]}\n"
         formatted_matches += f"Event: {match[4]}\n"
-        formatted_matches += f"Date: {match[3]}, Time: {match[2]}\n"
-        formatted_matches += f"{match[0]} vs {match[1]}\n\n"
+        formatted_matches += f"Date: {match[3]}, Time: {match[2]}\n\n"
     return formatted_matches
 
 
@@ -77,6 +77,6 @@ def format_matches(matches):
 def format_live_matches(matches):
     formatted_matches = ""
     for match in matches:
-        formatted_matches += f"Event: {match[2]}\n"
-        formatted_matches += f"{match[0]} vs {match[1]}\n\n"
+        formatted_matches += f"{match[0]} vs {match[1]}\n"
+        formatted_matches += f"Event: {match[2]}\n\n"
     return formatted_matches
