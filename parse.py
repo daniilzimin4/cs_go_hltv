@@ -251,13 +251,15 @@ def get_upcoming_matches():  # updated
             matchObj = {}
 
             matchObj['date'] = date
-            matchObj['time'] = getMatch.find("div", {"class": "matchTime"}).text
+            wrong_time = datetime.datetime.strptime(getMatch.find("div", {"class": "matchTime"}).text, '%H:%M')
+            right_time = wrong_time + datetime.timedelta(hours=1)
+            matchObj['time'] = str(right_time.strftime("%H:%M"))
             if getMatch.find("div", {"class": "matchEvent"}):
                 matchObj['event'] = getMatch.find("div", {"class": "matchEvent"}).text.encode('utf8').strip()
             else:
                 matchObj['event'] = getMatch.find("div", {"class": "matchInfoEmpty"}).text.encode('utf8').strip()
 
-            if (getMatch.find_all("div", {"class": "matchTeams"})):
+            if getMatch.find_all("div", {"class": "matchTeams"}):
                 matchObj['team1'] = getMatch.find_all("div", {"class": "matchTeam"})[0].text.encode(
                     'utf8').lstrip().rstrip()
                 matchObj['team2'] = getMatch.find_all("div", {"class": "matchTeam"})[1].text.encode(
@@ -289,7 +291,7 @@ def get_live_matches():  # new fun
             else:
                 matchObj['event'] = getMatch.find("div", {"class": "matchInfoEmpty"}).text.encode('utf8').strip()
 
-            if (getMatch.find_all("div", {"class": "matchTeams"})):
+            if getMatch.find_all("div", {"class": "matchTeams"}):
                 matchObj['team1'] = getMatch.find_all("div", {"class": "matchTeam"})[0].text.encode(
                     'utf8').lstrip().rstrip().replace(b'\n ()', b'')
                 matchObj['team2'] = getMatch.find_all("div", {"class": "matchTeam"})[1].text.encode(
@@ -345,6 +347,7 @@ def get_results():
             results_list.append(resultObj)
 
     return results_list
+
 
 if __name__ == "__main__":
     import pprint
