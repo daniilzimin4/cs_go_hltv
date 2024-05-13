@@ -31,7 +31,7 @@ def polling_thread():
 def send_match_notifications():
 	conn = sqlite3.connect(DATABASE_PATH)
 	cursor = conn.cursor()
-	for match in get_upcoming_matches_from_db():
+	for match in get_fav_upcoming_matches_from_db():
 		td = datetime.datetime(*([int(x) for x in match[3].split('-') + match[2].split(':')])) - datetime.datetime.now()
 		cursor.execute("SELECT count(*) FROM notifications WHERE" +
 		               " teamA=? AND teamB=? AND match_time=? AND date=? AND event=?", match)
@@ -92,7 +92,7 @@ def all_messages(msg):
 				formatted_live_matches_text = 'No live matches'
 			bot.send_message(chat_id, formatted_live_matches_text, reply_markup=send_matches_keyboard())
 		elif message == "Matches of monitored teams":
-			upcoming_matches = get_upcoming_matches_from_db()
+			upcoming_matches = get_fav_upcoming_matches_from_db()
 			interesting_teams = get_user_selected_teams(chat_id)
 			upcoming_matches = [match for match in upcoming_matches if
 			                    match[0] in interesting_teams or match[1] in interesting_teams]
