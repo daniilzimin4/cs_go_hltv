@@ -55,7 +55,7 @@ def get_upcoming_matches_from_db():
 def get_fav_upcoming_matches_from_db():
     conn = sqlite3.connect(DATABASE_PATH)
     cursor = conn.cursor()
-    cursor.execute("SELECT teamA, teamB, match_time, date, event FROM matches")
+    cursor.execute("SELECT teamA, teamB, match_time, date, event FROM matches LIMIT 50")
     matches = cursor.fetchall()
     conn.close()
     return matches
